@@ -1,0 +1,360 @@
+# GitHub Copilot Workshop — Ask, Plan, Agent, Instructions, Agents & Skills
+
+**Project**: ExpenseTracker
+
+---
+
+## Prerequisites
+
+- VS Code with GitHub Copilot extension (Chat enabled)
+- Access to GitHub Copilot (Individual, Business, or Enterprise)
+- Project cloned locally
+- No database or external services needed for the workshop tasks
+
+---
+
+## Quick Reference
+
+| Module | Topic | Time | Key Takeaway |
+|--------|-------|------|-------------|
+| 1 | **Ask Mode** | 10 min | Explore & understand code conversationally |
+| 2 | **Plan Mode** | 10 min | Research-first planning before implementation |
+| 3 | **Agent Mode** | 10 min | Autonomous multi-file implementation |
+| 4 | **Instructions** | 10 min | Project-wide convention enforcement |
+| 5 | **Custom Agents** | 15 min | Domain-specific persistent expertise |
+| 6 | **Skills** | 10 min | Reusable prompt templates for consistent output |
+
+---
+
+## Project Overview
+
+ExpenseTracker is a full-stack app with:
+- **Backend**: Java 11, Javalin, raw JDBC (MySQL), JWT auth, Google OAuth
+- **Frontend**: React 18, Vite, plain CSS, Google Identity Services
+- **Features**: Expense CRUD, monthly dashboard summary, admin panel, login audit trail
+- **Architecture**: Handler → DAO → Model (no DI framework, no ORM)
+
+All workshop tasks are **code-only** — no external services, no new dependencies, no database required. Participants work with the existing source code.
+
+---
+## Module 1 — Copilot Instructions
+
+### Task: Configure Project-Level Copilot Instructions
+
+**Objective**: Create `.github/copilot-instructions.md` to enforce project conventions across all Copilot interactions.
+
+**Steps**:
+
+1. Create the file `.github/copilot-instructions.md` at the project root.
+2. Add the following content:
+
+   ```markdown
+   # Copilot Instructions for ExpenseTracker
+
+   ## Tech Stack
+   - Backend: Java 11, Javalin 6.x, raw JDBC with PreparedStatements, MySQL 8+
+   - Frontend: React 18, Vite, plain CSS, JSX (NOT TypeScript)
+   - Auth: Google Identity Services + JWT (JJWT library)
+
+   ## Conventions
+   - Do NOT suggest Hibernate, JPA, Spring, or any ORM
+   - Do NOT suggest Tailwind, CSS-in-JS, or UI component libraries
+   - Do NOT add new dependencies unless explicitly asked
+   - All database IDs are UUIDs (VARCHAR 36)
+   - Use Database.getConnection() for DB access
+   - Follow the existing pattern: Handler → DAO → Model
+   - Use Gson for JSON serialization
+   - Frontend uses plain fetch via src/api/client.js — do NOT suggest Axios
+
+   ## Code Style
+   - Java: 4-space indentation, no wildcard imports
+   - JSX: 2-space indentation, functional components with hooks
+   - SQL: UPPERCASE keywords, lowercase column/table names
+   ```
+
+3. **Test the instructions** — switch to Agent mode and prompt:
+
+   ```
+   Add a utility method in ExpenseDao that returns the total expense amount
+   for a given user and month. Then use it in ExpenseHandler to add a
+   "total" field in the /api/expenses response.
+   ```
+
+4. **Verify** Copilot follows the instructions:
+   - Uses raw JDBC with `PreparedStatement` (not Hibernate)
+   - Uses `Database.getConnection()`
+   - Returns JSON with `ctx.json()` using Maps
+   - No new dependencies added
+
+### Learning Outcome
+- Instructions apply to ALL Copilot interactions project-wide
+- No need to repeat context in every prompt
+- Team conventions are enforced automatically
+
+---
+
+## Module 2 — Ask Mode
+
+### Task: Explore & Understand the Codebase
+
+**Objective**: Use Copilot Ask mode to onboard onto an unfamiliar codebase and discover issues.
+
+**Steps**:
+
+1. Open the project in VS Code with GitHub Copilot enabled.
+2. Open **Copilot Chat** and set it to **Ask mode**.
+3. Ask Copilot to explain the authentication flow. Use `#file` references to scope the question:
+
+   ```
+   #file:AuthHandler.java #file:GoogleTokenVerifier.java #file:JwtUtil.java #file:AuthContext.jsx
+   Explain the complete authentication flow — from Google sign-in to JWT validation on API requests.
+   ```
+
+4. Ask follow-up questions:
+   - *"What happens when a JWT expires?"*
+   - *"Why does the first user get ADMIN role automatically?"*
+
+5. Discover a bug using `#file` references:(Task)
+
+   ```
+   #file:Main.java #file:README.md
+   The README says port 7000 but what port does the code actually use?
+   ```
+
+6. Ask about a code quality issue:
+
+   ```
+   #file:Database.java #file:README.md
+   The README documents JDBC_URL, DB_USER, DB_PASSWORD env vars.
+   Does Database.java actually read these environment variables?
+   ```
+
+7. Try a workspace-wide question:
+
+   ```
+   @workspace List all API endpoints in this project with their HTTP methods and purpose.
+   ```
+
+### Learning Outcome
+- Navigate unfamiliar codebases using `#file` and `@workspace`
+- Discover bugs and inconsistencies through conversational exploration
+- Understand cross-file flows without reading every line
+
+---
+
+## Module 3 — Plan Mode
+
+### Task: Plan an Expense Export Feature
+
+**Objective**: Use Plan mode to research the codebase and produce a structured implementation plan.
+
+**Steps**:
+
+1. Switch Copilot Chat to **Plan mode**.
+2. Enter this prompt:
+
+   ```
+   Plan adding a CSV export feature for expenses.
+   - Add a new backend endpoint GET /api/expenses/export that returns expenses as CSV text
+   - Add an "Export CSV" button on the ExpenseList page that downloads the file
+   - Use only plain Java string formatting for CSV generation (no libraries)
+   - Use only the browser's built-in Blob/download APIs on the frontend
+   ```
+
+3. Observe how Copilot:
+   - Reads `ExpenseHandler.java` and `ExpenseDao.java` to understand existing patterns
+   - Reads `ExpenseList.jsx` to understand the current page layout
+   - Reads `Main.java` to see how routes are registered
+   - Proposes a step-by-step plan with specific file changes
+
+4. Ask a follow-up to refine the plan:
+   - *"Should the export endpoint reuse the same filters (date range, category) as the list endpoint?"*
+
+5. Review the final plan — notice it includes exact file paths, method names, and a logical order.
+
+### Learning Outcome
+- Plan mode researches the codebase autonomously before proposing
+- Plans iterate based on your feedback
+- You get a structured, executable plan before writing a single line of code
+
+---
+
+## Module 4 — Agent Mode
+
+### Task: Add Input Validation & Fix a Real Bug
+
+**Objective**: Use Agent mode to autonomously implement multi-file code changes.
+
+**Steps**:
+
+1. Switch Copilot Chat to **Agent mode**.
+2. Enter this prompt:
+
+   ```
+   Add input validation to the expense creation and update endpoints in ExpenseHandler.java.
+
+   Validate:
+   - amount must be positive and not null
+   - category must be one of: LOAN_PERSONAL, LOAN_OFFICE, SAVINGS, DAILY, HOME, COSMETICS, TRIP
+   - entry_date must not be null and must not be in the future
+   - note must be max 500 characters if provided
+   - loan_name is required when category starts with "LOAN_"
+
+   Return 400 status with JSON: { "error": "<message>" }
+   Use only existing project dependencies. No new libraries.
+   ```
+
+3. **Observe** how Copilot:
+   - Opens and edits `ExpenseHandler.java`
+   - Applies validation to both `create` and `update` methods
+   - May extract a shared validation helper method
+   - Maintains the existing code style and patterns
+
+4. Review the changes — accept or reject individual edits.
+
+5. **Follow-up task** — fix a real bug:
+
+   ```
+   The Database.java file has hardcoded JDBC connection values instead of reading
+   environment variables. Fix it to read JDBC_URL, DB_USER, and DB_PASSWORD
+   from System.getenv() with the current hardcoded values as fallback defaults.
+   ```
+
+6. Observe Agent mode editing `Database.java` to fix this real bug.
+
+### Learning Outcome
+- Agent mode makes autonomous multi-file edits
+- It follows existing code patterns and conventions
+- You review and accept/reject — you stay in control
+- Real bugs make great Agent mode tasks
+
+---
+
+
+
+## Module 5 — Build a Custom Agent
+
+### Task: Create a Code Reviewer Agent
+
+**Objective**: Build a custom Copilot agent that acts as a code reviewer with project-specific knowledge.
+
+**Steps**:
+
+1. Create the file `.github/agents/code-reviewer.md`.
+2. Add the following content:
+
+   ```markdown
+   # Code Reviewer Agent
+
+   You are a senior code reviewer for the ExpenseTracker Java + React application.
+
+   ## Your Role
+   - Review code for bugs, security issues, and bad practices
+   - Check adherence to project conventions
+   - Suggest improvements with specific code references
+
+   ## Project Knowledge
+   - Backend uses Javalin (NOT Spring) with raw JDBC and PreparedStatements
+   - Frontend is React with plain CSS (no TypeScript, no UI libraries)
+   - Auth is Google OAuth → JWT stored in localStorage
+   - All IDs are UUIDs, all DB access via Database.getConnection()
+   - DAOs use PreparedStatements (safe from SQL injection)
+
+   ## Review Checklist
+   - SQL injection risks (any string concatenation in queries?)
+   - Missing null checks on user input
+   - Missing authorization checks (does the endpoint verify user ownership?)
+   - Error handling (are exceptions swallowed or properly handled?)
+   - Resource leaks (are DB connections, ResultSets closed properly?)
+   - Frontend: XSS risks, missing error states, missing loading states
+   ```
+
+3. **Test the agent** in Copilot Chat:
+
+   ```
+   @code-reviewer Review ExpenseHandler.java for security issues,
+   missing validations, and code quality problems.
+   ```
+
+4. Try another prompt:
+
+   ```
+   @code-reviewer Review the frontend auth flow in AuthContext.jsx
+   and client.js. Are there any security concerns with how tokens
+   are stored and transmitted?
+   ```
+
+5. Observe how the agent provides project-aware reviews, not generic advice.
+
+### Learning Outcome
+- Custom agents carry persistent domain expertise
+- Invoked by anyone on the team with `@agent-name`
+- Provides project-specific advice, not generic suggestions
+
+---
+
+## Module 6 — Build a Skill
+
+### Task: Create an API Documentation Generator Skill
+
+**Objective**: Build a reusable skill that generates markdown API documentation from any Handler class.
+
+**Steps**:
+
+1. Create the file `.github/skills/generate-api-docs.md`.
+2. Add the following content:
+
+   ```markdown
+   # Skill: Generate API Docs
+
+   Read a Javalin Handler class and generate a markdown API reference document.
+
+   ## Inputs
+   - The target Handler Java file
+
+   ## Output Format
+   Generate a markdown file with:
+
+   ### For each endpoint in the handler, create a section with:
+   - HTTP method and path (e.g., `GET /api/expenses`)
+   - Whether authentication is required (yes for all /api/* routes)
+   - Request parameters (query params, path params, or JSON body fields)
+   - Response format (list the JSON fields returned)
+   - Example response as a JSON code block
+
+   ### Rules
+   - Read the handler code to determine the actual request/response shapes
+   - Read the corresponding DAO to understand what fields come from the database
+   - Read the corresponding Model class for field names and types
+   - Use a consistent markdown table format for parameters
+   - Keep descriptions concise — one line per field
+   - Output the doc as a single markdown file
+   ```
+
+3. **Test the skill** in Agent mode:
+
+   ```
+   Using the generate-api-docs skill, generate API documentation
+   for ExpenseHandler.java. Save it as docs/expense-api.md
+   ```
+
+4. Review the generated doc — check that:
+   - All endpoints from `ExpenseHandler` are documented
+   - Request/response fields match the actual code
+   - Example JSON responses look realistic
+
+5. **Try it on another handler**:
+
+   ```
+   Using the generate-api-docs skill, generate API documentation
+   for AuthHandler.java. Save it as docs/auth-api.md
+   ```
+
+6. Compare both docs — the format and style should be identical because the skill enforces consistency.
+
+### Learning Outcome
+- Skills encode repeatable tasks as reusable prompt templates
+- They produce consistent output regardless of which handler is targeted
+- Any team member can generate up-to-date API docs in seconds
+
+
