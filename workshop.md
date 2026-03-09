@@ -286,7 +286,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 
 **Steps**:
 
-1. Create the file `.github/skills/api-docs-generator.md`.
+1. Create the file `.github/skills/api-docs-generator/SKILL.md`.
 2. Add the following content:
 
    ```markdown
@@ -322,11 +322,10 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    - Output the doc as a single markdown file
    ```
 
-3. **Test the skill** in Agent mode:
+3. **Test the skill** in Agent mode: (Use /api-docs-generator slash command)
 
    ```
-   Using the generate-api-docs skill, generate API documentation
-   for ExpenseHandler.java. Save it as docs/expense-api.md
+   Generate API documentation for ExpenseHandler.java. Save it as docs/expense-api.md
    ```
 
 4. Review the generated doc — check that:
@@ -337,8 +336,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 5. **Try it on another handler**:
 
    ```
-   Using the generate-api-docs skill, generate API documentation
-   for AuthHandler.java. Save it as docs/auth-api.md
+   Generate API documentation for AuthHandler.java. Save it as docs/auth-api.md
    ```
 
 6. Compare both docs — the format and style should be identical because the skill enforces consistency.
