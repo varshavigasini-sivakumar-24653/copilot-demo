@@ -94,7 +94,7 @@ The first user who signs in with Google is assigned the **ADMIN** role and can o
 
 ## Copilot Workshop
 
-See [Workshop.md](Workshop.md) for the full workshop plan with 6 hands-on modules:
+See [workshop.md](workshop.md) for the full workshop plan with 6 hands-on modules:
 
 1. **Copilot Instructions** — Set up project conventions
 2. **Ask Mode** — Explore the codebase conversationally
