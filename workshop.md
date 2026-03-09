@@ -37,63 +37,8 @@ ExpenseTracker is a full-stack app with:
 All workshop tasks are **code-only** — no external services, no new dependencies, no database required. Participants work with the existing source code.
 
 ---
-## Module 1 — Copilot Instructions
 
-### Task: Configure Project-Level Copilot Instructions
-
-**Objective**: Create `.github/copilot-instructions.md` to enforce project conventions across all Copilot interactions.
-
-**Steps**:
-
-1. Create the file `.github/copilot-instructions.md` at the project root.
-2. Add the following content:
-
-   ```markdown
-   # Copilot Instructions for ExpenseTracker
-
-   ## Tech Stack
-   - Backend: Java 11, Javalin 6.x, raw JDBC with PreparedStatements, MySQL 8+
-   - Frontend: React 18, Vite, plain CSS, JSX (NOT TypeScript)
-   - Auth: Google Identity Services + JWT (JJWT library)
-
-   ## Conventions
-   - Do NOT suggest Hibernate, JPA, Spring, or any ORM
-   - Do NOT suggest Tailwind, CSS-in-JS, or UI component libraries
-   - Do NOT add new dependencies unless explicitly asked
-   - All database IDs are UUIDs (VARCHAR 36)
-   - Use Database.getConnection() for DB access
-   - Follow the existing pattern: Handler → DAO → Model
-   - Use Gson for JSON serialization
-   - Frontend uses plain fetch via src/api/client.js — do NOT suggest Axios
-
-   ## Code Style
-   - Java: 4-space indentation, no wildcard imports
-   - JSX: 2-space indentation, functional components with hooks
-   - SQL: UPPERCASE keywords, lowercase column/table names
-   ```
-
-3. **Test the instructions** — switch to Agent mode and prompt:
-
-   ```
-   Add a utility method in ExpenseDao that returns the total expense amount
-   for a given user and month. Then use it in ExpenseHandler to add a
-   "total" field in the /api/expenses response.
-   ```
-
-4. **Verify** Copilot follows the instructions:
-   - Uses raw JDBC with `PreparedStatement` (not Hibernate)
-   - Uses `Database.getConnection()`
-   - Returns JSON with `ctx.json()` using Maps
-   - No new dependencies added
-
-### Learning Outcome
-- Instructions apply to ALL Copilot interactions project-wide
-- No need to repeat context in every prompt
-- Team conventions are enforced automatically
-
----
-
-## Module 2 — Ask Mode
+## Module 1 — Ask Mode
 
 ### Task: Explore & Understand the Codebase
 
@@ -103,7 +48,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 
 1. Open the project in VS Code with GitHub Copilot enabled.
 2. Open **Copilot Chat** and set it to **Ask mode**.
-3. Ask Copilot to explain the authentication flow. Use `#file` references to scope the question:
+3. Ask Copilot to explain the authentication flow. Use `#file` or `add context` references to scope the question:
 
    ```
    #file:AuthHandler.java #file:GoogleTokenVerifier.java #file:JwtUtil.java #file:AuthContext.jsx
@@ -114,14 +59,8 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    - *"What happens when a JWT expires?"*
    - *"Why does the first user get ADMIN role automatically?"*
 
-5. Discover a bug using `#file` references:(Task)
 
-   ```
-   #file:Main.java #file:README.md
-   The README says port 7000 but what port does the code actually use?
-   ```
-
-6. Ask about a code quality issue:
+5. Ask about a code quality issue:
 
    ```
    #file:Database.java #file:README.md
@@ -129,7 +68,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    Does Database.java actually read these environment variables?
    ```
 
-7. Try a workspace-wide question:
+6. Try a workspace-wide question:
 
    ```
    @workspace List all API endpoints in this project with their HTTP methods and purpose.
@@ -142,7 +81,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 
 ---
 
-## Module 3 — Plan Mode
+## Module 2 — Plan Mode
 
 ### Task: Plan an Expense Export Feature
 
@@ -154,7 +93,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 2. Enter this prompt:
 
    ```
-   Plan adding a CSV export feature for expenses.
+   Plan adding a CSV export feature for expenses. If any doubts, confirm with me.
    - Add a new backend endpoint GET /api/expenses/export that returns expenses as CSV text
    - Add an "Export CSV" button on the ExpenseList page that downloads the file
    - Use only plain Java string formatting for CSV generation (no libraries)
@@ -179,7 +118,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 
 ---
 
-## Module 4 — Agent Mode
+## Module 3 — Agent Mode
 
 ### Task: Add Input Validation & Fix a Real Bug
 
@@ -212,16 +151,6 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 
 4. Review the changes — accept or reject individual edits.
 
-5. **Follow-up task** — fix a real bug:
-
-   ```
-   The Database.java file has hardcoded JDBC connection values instead of reading
-   environment variables. Fix it to read JDBC_URL, DB_USER, and DB_PASSWORD
-   from System.getenv() with the current hardcoded values as fallback defaults.
-   ```
-
-6. Observe Agent mode editing `Database.java` to fix this real bug.
-
 ### Learning Outcome
 - Agent mode makes autonomous multi-file edits
 - It follows existing code patterns and conventions
@@ -229,9 +158,60 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 - Real bugs make great Agent mode tasks
 
 ---
+## Module 4 — Copilot Instructions
 
+### Task: Configure Project-Level Copilot Instructions
 
+**Objective**: Create `.github/copilot-instructions.md` to enforce project conventions across all Copilot interactions.
 
+**Steps**:
+
+1. Create the file `.github/copilot-instructions.md` at the project root.
+2. Add the following content:
+
+   ```markdown
+   # Copilot Instructions for ExpenseTracker
+
+   ## Tech Stack
+   - Backend: Java 11, Javalin 6.x, raw JDBC with PreparedStatements, MySQL 8+
+   - Frontend: React 18, Vite, plain CSS, JSX (NOT TypeScript)
+   - Auth: Google Identity Services + JWT (JJWT library)
+
+   ## Conventions
+
+   - Do NOT suggest Hibernate, JPA, Spring, or any ORM
+   - Do NOT suggest Tailwind, CSS-in-JS, or UI component libraries
+   - Do NOT add new dependencies unless explicitly asked
+   - All database IDs are UUIDs (VARCHAR 36)
+   - Use Database.getConnection() for DB access
+   - Follow the existing pattern: Handler → DAO → Model
+   - Use Gson for JSON serialization
+   - Frontend uses plain fetch via src/api/client.js — do NOT suggest Axios
+
+   ## Code Style
+   - Java: 4-space indentation, no wildcard imports
+   - JSX: 2-space indentation, functional components with hooks
+   - SQL: UPPERCASE keywords, lowercase column/table names
+   ```
+
+3. **Test the instructions** — switch to Agent mode and prompt:
+
+   ```
+   Add a utility method in ExpenseDao that returns the total expense amount for a given user and month. Then use it in ExpenseHandler to add a "total" field in the /api/expenses response.
+   ```
+
+4. **Verify** Copilot follows the instructions:
+   - Uses raw JDBC with `PreparedStatement` (not Hibernate)
+   - Uses `Database.getConnection()`
+   - Returns JSON with `ctx.json()` using Maps
+   - No new dependencies added
+
+### Learning Outcome
+- Instructions apply to ALL Copilot interactions project-wide
+- No need to repeat context in every prompt
+- Team conventions are enforced automatically
+
+---
 ## Module 5 — Build a Custom Agent
 
 ### Task: Create a Code Reviewer Agent
@@ -244,8 +224,11 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 2. Add the following content:
 
    ```markdown
-   # Code Reviewer Agent
-
+   ---
+   name: Code Reviewer
+   description: Reviews code for bugs, security issues, and best practices
+   user-invokable: true
+   ---
    You are a senior code reviewer for the ExpenseTracker Java + React application.
 
    ## Your Role
@@ -272,14 +255,16 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 3. **Test the agent** in Copilot Chat:
 
    ```
-   @code-reviewer Review ExpenseHandler.java for security issues,
+   @code-reviewer(In the modes drop down, select "Code Reviewer" Agent)
+   Review ExpenseHandler.java for security issues,
    missing validations, and code quality problems.
    ```
 
 4. Try another prompt:
 
    ```
-   @code-reviewer Review the frontend auth flow in AuthContext.jsx
+    @code-reviewer(In the modes drop down, select "Code Reviewer" Agent)
+    Review the frontend auth flow in AuthContext.jsx
    and client.js. Are there any security concerns with how tokens
    are stored and transmitted?
    ```
@@ -301,11 +286,17 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 
 **Steps**:
 
-1. Create the file `.github/skills/generate-api-docs.md`.
+1. Create the file `.github/skills/api-docs-generator.md`.
 2. Add the following content:
 
    ```markdown
-   # Skill: Generate API Docs
+   ---
+   name: api-docs-generator
+   description: Generate a markdown API reference from a Javalin Handler class
+   user-invokable: true
+   ---
+
+   # API Docs Generator
 
    Read a Javalin Handler class and generate a markdown API reference document.
 
