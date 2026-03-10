@@ -8,7 +8,7 @@ export async function api(path, options = {}) {
   const token = getToken();
   const headers = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...options.headers
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const url = API_BASE + path;
@@ -31,7 +31,14 @@ export async function api(path, options = {}) {
 export async function googleLogin(idToken) {
   return api('/api/auth/google', {
     method: 'POST',
-    body: JSON.stringify({ idToken }),
+    body: JSON.stringify({ idToken })
+  });
+}
+
+export async function devLogin(username, password) {
+  return api('/api/auth/dev', {
+    method: 'POST',
+    body: JSON.stringify({ username, password })
   });
 }
 
@@ -49,7 +56,10 @@ export async function getExpense(id) {
 }
 
 export async function getExpenseSummary(month) {
-  return api('/api/expenses/summary' + (month ? '?month=' + encodeURIComponent(month) : ''));
+  return api(
+    '/api/expenses/summary' +
+      (month ? '?month=' + encodeURIComponent(month) : '')
+  );
 }
 
 export async function createExpense(data) {
@@ -57,7 +67,10 @@ export async function createExpense(data) {
 }
 
 export async function updateExpense(id, data) {
-  return api('/api/expenses/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  return api('/api/expenses/' + id, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
 }
 
 export async function deleteExpense(id) {

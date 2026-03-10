@@ -24,7 +24,7 @@ public class Main {
         });
 
         app.before("/api/*", ctx -> {
-            if (ctx.path().equals("/api/auth/google"))
+            if (ctx.path().equals("/api/auth/google") || ctx.path().equals("/api/auth/dev"))
                 return;
             String auth = ctx.header("Authorization");
             if (auth == null || !auth.startsWith("Bearer ")) {
@@ -47,6 +47,7 @@ public class Main {
         });
 
         app.post("/api/auth/google", authHandler.googleLogin);
+        app.post("/api/auth/dev", authHandler.devLogin);
         app.get("/api/me", authHandler.me);
 
         app.get("/api/expenses", expenseHandler::list);

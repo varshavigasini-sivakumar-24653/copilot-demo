@@ -2,6 +2,7 @@ package com.expense.tracker.handler;
 
 import com.expense.tracker.dao.LoginEventDao;
 import com.expense.tracker.dao.UserDao;
+import com.expense.tracker.dto.DevLoginRequest;
 import com.expense.tracker.dto.GoogleLoginRequest;
 import com.expense.tracker.model.User;
 import com.expense.tracker.util.GoogleTokenVerifier;
@@ -37,6 +38,27 @@ public class AuthHandler {
         String ip = ctx.header("X-Forwarded-For");
         if (ip == null) ip = ctx.ip();
         loginEventDao.insert(user.getId(), ip);
+
+        String token = JwtUtil.createToken(user);
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("user", userResponse(user));
+        ctx.json(response);
+    };
+
+    public Handler devLogin = ctx -> {
+        DevLoginRequest body = ctx.bodyAsClass(DevLoginRequest.class);
+        if (body == null
+                || !"developer".equals(body.getUsername())
+                || !"developer".equals(body.getPassword())) {
+            ctx.status(401).json(Map.of("error", "Invalid credentials"));
+            return;
+        }
+
+        final String devEmail = "developer@test.local";
+        User user = userDao.findByEmail(devEmail).orElseGet(() ->
+                userDao.insert(devEmail, "Developer", null, "ADMIN")
+        );
 
         String token = JwtUtil.createToken(user);
         Map<String, Object> response = new HashMap<>();
