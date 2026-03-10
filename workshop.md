@@ -287,7 +287,9 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 **Steps**:
 
 1. Create the file `.github/skills/api-docs-generator/SKILL.md`.
-2. Add the following content:
+2. Add the following content: 
+
+Prompt: Create a skill for generating api docs and follow the strucutre mentioned in this URL: https://code.visualstudio.com/docs/copilot/customization/agent-skills#_skillmd-file-format. Use the below one for reference
 
    ```markdown
    ---
@@ -321,6 +323,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    - Keep descriptions concise — one line per field
    - Output the doc as a single markdown file
    ```
+
 
 3. **Test the skill** in Agent mode: (Use /api-docs-generator slash command)
 
