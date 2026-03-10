@@ -220,7 +220,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 
 **Steps**:
 
-1. Create the file `.github/agents/code-reviewer.md`.
+1. Create the file `.github/agents/code-reviewer.agent.md`.
 2. Add the following content:
 
    ```markdown
