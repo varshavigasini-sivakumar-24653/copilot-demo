@@ -15,20 +15,21 @@
 
 ## Quick Reference
 
-| Module | Topic | Time | Key Takeaway |
-|--------|-------|------|-------------|
-| 1 | **Ask Mode** | 10 min | Explore & understand code conversationally |
-| 2 | **Plan Mode** | 10 min | Research-first planning before implementation |
-| 3 | **Agent Mode** | 10 min | Autonomous multi-file implementation |
-| 4 | **Instructions** | 10 min | Project-wide convention enforcement |
-| 5 | **Custom Agents** | 15 min | Domain-specific persistent expertise |
-| 6 | **Skills** | 10 min | Reusable prompt templates for consistent output |
+| Module | Topic             | Time   | Key Takeaway                                    |
+| ------ | ----------------- | ------ | ----------------------------------------------- |
+| 1      | **Ask Mode**      | 10 min | Explore & understand code conversationally      |
+| 2      | **Plan Mode**     | 10 min | Research-first planning before implementation   |
+| 3      | **Agent Mode**    | 10 min | Autonomous multi-file implementation            |
+| 4      | **Instructions**  | 10 min | Project-wide convention enforcement             |
+| 5      | **Custom Agents** | 15 min | Domain-specific persistent expertise            |
+| 6      | **Skills**        | 10 min | Reusable prompt templates for consistent output |
 
 ---
 
 ## Project Overview
 
 ExpenseTracker is a full-stack app with:
+
 - **Backend**: Java 11, Javalin, raw JDBC (MySQL), JWT auth, Google OAuth
 - **Frontend**: React 18, Vite, plain CSS, Google Identity Services
 - **Features**: Expense CRUD, monthly dashboard summary, admin panel, login audit trail
@@ -56,9 +57,9 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    ```
 
 4. Ask follow-up questions:
-   - *"What happens when a JWT expires?"*
-   - *"Why does the first user get ADMIN role automatically?"*
 
+   - _"What happens when a JWT expires?"_
+   - _"Why does the first user get ADMIN role automatically?"_
 
 5. Ask about a code quality issue:
 
@@ -75,6 +76,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    ```
 
 ### Learning Outcome
+
 - Navigate unfamiliar codebases using `#file` and `@workspace`
 - Discover bugs and inconsistencies through conversational exploration
 - Understand cross-file flows without reading every line
@@ -101,17 +103,20 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    ```
 
 3. Observe how Copilot:
+
    - Reads `ExpenseHandler.java` and `ExpenseDao.java` to understand existing patterns
    - Reads `ExpenseList.jsx` to understand the current page layout
    - Reads `Main.java` to see how routes are registered
    - Proposes a step-by-step plan with specific file changes
 
 4. Ask a follow-up to refine the plan:
-   - *"Should the export endpoint reuse the same filters (date range, category) as the list endpoint?"*
+
+   - _"Should the export endpoint reuse the same filters (date range, category) as the list endpoint?"_
 
 5. Review the final plan — notice it includes exact file paths, method names, and a logical order.
 
 ### Learning Outcome
+
 - Plan mode researches the codebase autonomously before proposing
 - Plans iterate based on your feedback
 - You get a structured, executable plan before writing a single line of code
@@ -144,6 +149,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    ```
 
 3. **Observe** how Copilot:
+
    - Opens and edits `ExpenseHandler.java`
    - Applies validation to both `create` and `update` methods
    - May extract a shared validation helper method
@@ -152,12 +158,14 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 4. Review the changes — accept or reject individual edits.
 
 ### Learning Outcome
+
 - Agent mode makes autonomous multi-file edits
 - It follows existing code patterns and conventions
 - You review and accept/reject — you stay in control
 - Real bugs make great Agent mode tasks
 
 ---
+
 ## Module 4 — Copilot Instructions
 
 ### Task: Configure Project-Level Copilot Instructions
@@ -173,6 +181,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    # Copilot Instructions for ExpenseTracker
 
    ## Tech Stack
+
    - Backend: Java 11, Javalin 6.x, raw JDBC with PreparedStatements, MySQL 8+
    - Frontend: React 18, Vite, plain CSS, JSX (NOT TypeScript)
    - Auth: Google Identity Services + JWT (JJWT library)
@@ -189,6 +198,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    - Frontend uses plain fetch via src/api/client.js — do NOT suggest Axios
 
    ## Code Style
+
    - Java: 4-space indentation, no wildcard imports
    - JSX: 2-space indentation, functional components with hooks
    - SQL: UPPERCASE keywords, lowercase column/table names
@@ -207,11 +217,13 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    - No new dependencies added
 
 ### Learning Outcome
+
 - Instructions apply to ALL Copilot interactions project-wide
 - No need to repeat context in every prompt
 - Team conventions are enforced automatically
 
 ---
+
 ## Module 5 — Build a Custom Agent
 
 ### Task: Create a Code Reviewer Agent
@@ -229,14 +241,17 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    description: Reviews code for bugs, security issues, and best practices
    user-invokable: true
    ---
+
    You are a senior code reviewer for the ExpenseTracker Java + React application.
 
    ## Your Role
+
    - Review code for bugs, security issues, and bad practices
    - Check adherence to project conventions
    - Suggest improvements with specific code references
 
    ## Project Knowledge
+
    - Backend uses Javalin (NOT Spring) with raw JDBC and PreparedStatements
    - Frontend is React with plain CSS (no TypeScript, no UI libraries)
    - Auth is Google OAuth → JWT stored in localStorage
@@ -244,6 +259,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    - DAOs use PreparedStatements (safe from SQL injection)
 
    ## Review Checklist
+
    - SQL injection risks (any string concatenation in queries?)
    - Missing null checks on user input
    - Missing authorization checks (does the endpoint verify user ownership?)
@@ -272,6 +288,7 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 5. Observe how the agent provides project-aware reviews, not generic advice.
 
 ### Learning Outcome
+
 - Custom agents carry persistent domain expertise
 - Invoked by anyone on the team with `@agent-name`
 - Provides project-specific advice, not generic suggestions
@@ -287,60 +304,177 @@ All workshop tasks are **code-only** — no external services, no new dependenci
 **Steps**:
 
 1. Create the file `.github/skills/api-docs-generator/SKILL.md`.
-2. Add the following content: 
-
-Prompt: Create a skill for generating api docs and follow the strucutre mentioned in this URL: https://code.visualstudio.com/docs/copilot/customization/agent-skills#_skillmd-file-format. Use the below one for reference
+2. Add the following content:
 
    ```markdown
    ---
+
    name: api-docs-generator
-   description: Generate a markdown API reference from a Javalin Handler class
-   user-invokable: true
-   ---
-
-   # API Docs Generator
-
-   Read a Javalin Handler class and generate a markdown API reference document.
-
-   ## Inputs
-   - The target Handler Java file
-
-   ## Output Format
-   Generate a markdown file with:
-
-   ### For each endpoint in the handler, create a section with:
-   - HTTP method and path (e.g., `GET /api/expenses`)
-   - Whether authentication is required (yes for all /api/* routes)
-   - Request parameters (query params, path params, or JSON body fields)
-   - Response format (list the JSON fields returned)
-   - Example response as a JSON code block
-
-   ### Rules
-   - Read the handler code to determine the actual request/response shapes
-   - Read the corresponding DAO to understand what fields come from the database
-   - Read the corresponding Model class for field names and types
-   - Use a consistent markdown table format for parameters
-   - Keep descriptions concise — one line per field
-   - Output the doc as a single markdown file
+   description: Generates REST API documentation for the ExpenseTracker backend. Use this skill when asked to document endpoints, generate API reference, create OpenAPI-style docs, or produce request/response examples for Javalin route handlers.
+   argument-hint: 'handler file or endpoint path, optionally followed by output format (markdown or openapi)'
    ```
+
+---
+
+# API Docs Generator
+
+Generates clear, structured REST API documentation for the ExpenseTracker backend by reading Javalin route handlers and their corresponding DAOs.
+
+## When to Use
+
+- User asks to document an endpoint or handler
+- User wants API reference for a feature (auth, expenses, admin)
+- User needs request/response examples for a route
+- User wants to understand what a handler accepts/returns
+
+## Project Context
+
+- **Framework:** Javalin 6.1.3 — routes are registered in `Main.java`
+- **Handlers:** `backend/src/main/java/com/expense/tracker/handler/`
+  - `AuthHandler.java` — Google login, JWT issuance
+  - `ExpenseHandler.java` — CRUD for expenses
+  - `AdminHandler.java` — admin-only operations
+- **Models:** `backend/src/main/java/com/expense/tracker/model/`
+- **DTOs:** `backend/src/main/java/com/expense/tracker/dto/`
+- **Auth:** JWT passed as `Authorization: Bearer <token>` header; user identity extracted server-side via `JwtUtil`
+- **IDs:** All resource IDs are UUIDs (VARCHAR 36)
+- **Errors:** Returned as `{ "error": "message" }` with appropriate HTTP status
+
+## Step-by-Step Procedure
+
+1. **Identify the target** — determine which handler file(s) or route(s) to document from the user's request.
+2. **Read `Main.java`** to find the route path and HTTP method for the handler method.
+3. **Read the handler** to extract:
+   - Path parameters (`ctx.pathParam(...)`)
+   - Query parameters (`ctx.queryParam(...)`)
+   - Request body shape (`ctx.bodyAs(...)` or `gson.fromJson(...)`)
+   - Response body shape (what is passed to `ctx.json(...)`)
+   - HTTP status codes returned
+   - Auth requirements (is a JWT check present?)
+4. **Read the DAO** referenced by the handler to understand DB constraints (required fields, types).
+5. **Read the Model/DTO** classes for field names and types.
+6. **Generate documentation** in the format below.
+
+## Output Format
+
+Produce a Markdown document with one section per endpoint:
+
+```
+## <HTTP METHOD> <path>
+
+**Description:** One-sentence summary of what this endpoint does.
+
+**Auth required:** Yes / No
+**Role required:** admin / user / none
+
+### Path Parameters
+| Name | Type   | Description |
+|------|--------|-------------|
+| id   | UUID   | Expense ID  |
+
+### Query Parameters
+| Name | Type   | Required | Description |
+|------|--------|----------|-------------|
+
+### Request Body
+\`\`\`json
+{
+  "field": "type — description"
+}
+\`\`\`
+
+### Response
+
+**Success `<status>`**
+\`\`\`json
+{
+  "field": "example value"
+}
+\`\`\`
+
+**Error Responses**
+| Status | Body                        | Condition          |
+|--------|-----------------------------|--------------------|
+| 401    | `{ "error": "Unauthorized" }` | Missing/invalid JWT |
+| 404    | `{ "error": "Not found" }`  | Resource not found |
+```
+
+## Rules
+
+- Use **actual field names** from the model/DTO — never invent field names
+- Always note if an endpoint requires a JWT (`Authorization: Bearer <token>`)
+- For admin endpoints, note `Role required: admin`
+- Show both success and all documented error responses
+- If a field is a UUID, note its type as `string (UUID)`
+- Amounts are stored as `DECIMAL` — represent as `number` in JSON examples
+- Dates use ISO 8601 format (`YYYY-MM-DD`)
+- Do **not** suggest adding Swagger/OpenAPI libraries — documentation is Markdown only
+
+## Example
+
+For `ExpenseHandler.java` `createExpense` mapped to `POST /api/expenses`:
+
+```
+## POST /api/expenses
+
+**Description:** Creates a new expense entry for the authenticated user.
+
+**Auth required:** Yes
+
+### Request Body
+\`\`\`json
+{
+  "amount": 42.50,
+  "category": "Food",
+  "description": "Lunch",
+  "date": "2026-03-10"
+}
+\`\`\`
+
+### Response
+
+**Success `201`**
+\`\`\`json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "userId": "...",
+  "amount": 42.50,
+  "category": "Food",
+  "description": "Lunch",
+  "date": "2026-03-10"
+}
+\`\`\`
+
+**Error Responses**
+| Status | Body | Condition |
+|--------|------|-----------|
+| 401    | `{ "error": "Unauthorized" }` | Missing or invalid JWT |
+| 400    | `{ "error": "Invalid request" }` | Missing required fields |
+```
+
+```
 
 
 3. **Test the skill** in Agent mode: (Use /api-docs-generator slash command)
 
-   ```
-   Generate API documentation for ExpenseHandler.java. Save it as docs/expense-api.md
-   ```
+```
+
+Generate API documentation for ExpenseHandler.java. Save it as docs/expense-api.md
+
+```
 
 4. Review the generated doc — check that:
-   - All endpoints from `ExpenseHandler` are documented
-   - Request/response fields match the actual code
-   - Example JSON responses look realistic
+- All endpoints from `ExpenseHandler` are documented
+- Request/response fields match the actual code
+- Example JSON responses look realistic
 
 5. **Try it on another handler**:
 
-   ```
-   Generate API documentation for AuthHandler.java. Save it as docs/auth-api.md
-   ```
+```
+
+Generate API documentation for AuthHandler.java. Save it as docs/auth-api.md
+
+```
 
 6. Compare both docs — the format and style should be identical because the skill enforces consistency.
 
@@ -350,3 +484,4 @@ Prompt: Create a skill for generating api docs and follow the strucutre mentione
 - Any team member can generate up-to-date API docs in seconds
 
 
+```
