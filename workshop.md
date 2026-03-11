@@ -310,154 +310,150 @@ All workshop tasks are **code-only** — no external services, no new dependenci
    ---
 
    name: api-docs-generator
-   description: Generates REST API documentation for the ExpenseTracker backend. Use this skill when asked to document endpoints, generate API reference, create OpenAPI-style docs, or produce request/response examples for Javalin route handlers.
+   description: Generates REST API documentation for the ExpenseTracker backend. Use this skill when asked to document endpoints, generate API  reference, create OpenAPI-style docs, or produce request/response examples for Javalin route handlers.
    argument-hint: 'handler file or endpoint path, optionally followed by output format (markdown or openapi)'
-   ```
 
----
+   ---
+   
+   # API Docs Generator
+   
+   Generates clear, structured REST API documentation for the ExpenseTracker backend by reading Javalin route handlers and their corresponding DAOs.
+   
+   ## When to Use
+   
+   - User asks to document an endpoint or handler
+   - User wants API reference for a feature (auth, expenses, admin)
+   - User needs request/response examples for a route
+   - User wants to understand what a handler accepts/returns
+   
+   ## Project Context
+   
+   - **Framework:** Javalin 6.1.3 — routes are registered in `Main.java`
+   - **Handlers:** `backend/src/main/java/com/expense/tracker/handler/`
+     - `AuthHandler.java` — Google login, JWT issuance
+     - `ExpenseHandler.java` — CRUD for expenses
+     - `AdminHandler.java` — admin-only operations
+   - **Models:** `backend/src/main/java/com/expense/tracker/model/`
+   - **DTOs:** `backend/src/main/java/com/expense/tracker/dto/`
+   - **Auth:** JWT passed as `Authorization: Bearer <token>` header; user identity extracted server-side via `JwtUtil`
+   - **IDs:** All resource IDs are UUIDs (VARCHAR 36)
+   - **Errors:** Returned as `{ "error": "message" }` with appropriate HTTP status
+   
+   ## Step-by-Step Procedure
+   
+   1. **Identify the target** — determine which handler file(s) or route(s) to document from the user's request.
+   2. **Read `Main.java`** to find the route path and HTTP method for the handler method.
+   3. **Read the handler** to extract:
+      - Path parameters (`ctx.pathParam(...)`)
+      - Query parameters (`ctx.queryParam(...)`)
+      - Request body shape (`ctx.bodyAs(...)` or `gson.fromJson(...)`)
+      - Response body shape (what is passed to `ctx.json(...)`)
+      - HTTP status codes returned
+      - Auth requirements (is a JWT check present?)
+   4. **Read the DAO** referenced by the handler to understand DB constraints (required fields, types).
+   5. **Read the Model/DTO** classes for field names and types.
+   6. **Generate documentation** in the format below.
+   
+   ## Output Format
+   
+   Produce a Markdown document with one section per endpoint:
+   
+   ## <HTTP METHOD> <path>
+   
+   **Description:** One-sentence summary of what this endpoint does.
+   
+   **Auth required:** Yes / No
+   **Role required:** admin / user / none
+   
+   ### Path Parameters
+   | Name | Type   | Description |
+   |------|--------|-------------|
+   | id   | UUID   | Expense ID  |
+   
+   ### Query Parameters
+   | Name | Type   | Required | Description |
+   |------|--------|----------|-------------|
+   
+   ### Request Body
+   \`\`\`json
+   {
+     "field": "type — description"
+   }
+   \`\`\`
+   
+   ### Response
+   
+   **Success `<status>`**
+   \`\`\`json
+   {
+     "field": "example value"
+   }
+   \`\`\`
+   
+   **Error Responses**
+   | Status | Body                        | Condition          |
+   |--------|-----------------------------|--------------------|
+   | 401    | `{ "error": "Unauthorized" }` | Missing/invalid JWT |
+   | 404    | `{ "error": "Not found" }`  | Resource not found |
 
-# API Docs Generator
 
-Generates clear, structured REST API documentation for the ExpenseTracker backend by reading Javalin route handlers and their corresponding DAOs.
+   ## Rules
+   
+   - Use **actual field names** from the model/DTO — never invent field names
+   - Always note if an endpoint requires a JWT (`Authorization: Bearer <token>`)
+   - For admin endpoints, note `Role required: admin`
+   - Show both success and all documented error responses
+   - If a field is a UUID, note its type as `string (UUID)`
+   - Amounts are stored as `DECIMAL` — represent as `number` in JSON examples
+   - Dates use ISO 8601 format (`YYYY-MM-DD`)
+   - Do **not** suggest adding Swagger/OpenAPI libraries — documentation is Markdown only
+   
+   ## Example
+   
+   For `ExpenseHandler.java` `createExpense` mapped to `POST /api/expenses`:
+   
+   
+   ## POST /api/expenses
+   
+   **Description:** Creates a new expense entry for the authenticated user.
+   
+   **Auth required:** Yes
+   
+   ### Request Body
+   \`\`\`json
+   {
+     "amount": 42.50,
+     "category": "Food",
+     "description": "Lunch",
+     "date": "2026-03-10"
+   }
+   \`\`\`
+   
+   ### Response
+   
+   **Success `201`**
+   \`\`\`json
+   {
+     "id": "550e8400-e29b-41d4-a716-446655440000",
+     "userId": "...",
+     "amount": 42.50,
+     "category": "Food",
+     "description": "Lunch",
+     "date": "2026-03-10"
+   }
+   \`\`\`
+   
+   **Error Responses**
+   | Status | Body | Condition |
+   |--------|------|-----------|
+   | 401    | `{ "error": "Unauthorized" }` | Missing or invalid JWT |
+   | 400    | `{ "error": "Invalid request" }` | Missing required fields |
 
-## When to Use
-
-- User asks to document an endpoint or handler
-- User wants API reference for a feature (auth, expenses, admin)
-- User needs request/response examples for a route
-- User wants to understand what a handler accepts/returns
-
-## Project Context
-
-- **Framework:** Javalin 6.1.3 — routes are registered in `Main.java`
-- **Handlers:** `backend/src/main/java/com/expense/tracker/handler/`
-  - `AuthHandler.java` — Google login, JWT issuance
-  - `ExpenseHandler.java` — CRUD for expenses
-  - `AdminHandler.java` — admin-only operations
-- **Models:** `backend/src/main/java/com/expense/tracker/model/`
-- **DTOs:** `backend/src/main/java/com/expense/tracker/dto/`
-- **Auth:** JWT passed as `Authorization: Bearer <token>` header; user identity extracted server-side via `JwtUtil`
-- **IDs:** All resource IDs are UUIDs (VARCHAR 36)
-- **Errors:** Returned as `{ "error": "message" }` with appropriate HTTP status
-
-## Step-by-Step Procedure
-
-1. **Identify the target** — determine which handler file(s) or route(s) to document from the user's request.
-2. **Read `Main.java`** to find the route path and HTTP method for the handler method.
-3. **Read the handler** to extract:
-   - Path parameters (`ctx.pathParam(...)`)
-   - Query parameters (`ctx.queryParam(...)`)
-   - Request body shape (`ctx.bodyAs(...)` or `gson.fromJson(...)`)
-   - Response body shape (what is passed to `ctx.json(...)`)
-   - HTTP status codes returned
-   - Auth requirements (is a JWT check present?)
-4. **Read the DAO** referenced by the handler to understand DB constraints (required fields, types).
-5. **Read the Model/DTO** classes for field names and types.
-6. **Generate documentation** in the format below.
-
-## Output Format
-
-Produce a Markdown document with one section per endpoint:
-
-```
-## <HTTP METHOD> <path>
-
-**Description:** One-sentence summary of what this endpoint does.
-
-**Auth required:** Yes / No
-**Role required:** admin / user / none
-
-### Path Parameters
-| Name | Type   | Description |
-|------|--------|-------------|
-| id   | UUID   | Expense ID  |
-
-### Query Parameters
-| Name | Type   | Required | Description |
-|------|--------|----------|-------------|
-
-### Request Body
-\`\`\`json
-{
-  "field": "type — description"
-}
-\`\`\`
-
-### Response
-
-**Success `<status>`**
-\`\`\`json
-{
-  "field": "example value"
-}
-\`\`\`
-
-**Error Responses**
-| Status | Body                        | Condition          |
-|--------|-----------------------------|--------------------|
-| 401    | `{ "error": "Unauthorized" }` | Missing/invalid JWT |
-| 404    | `{ "error": "Not found" }`  | Resource not found |
-```
-
-## Rules
-
-- Use **actual field names** from the model/DTO — never invent field names
-- Always note if an endpoint requires a JWT (`Authorization: Bearer <token>`)
-- For admin endpoints, note `Role required: admin`
-- Show both success and all documented error responses
-- If a field is a UUID, note its type as `string (UUID)`
-- Amounts are stored as `DECIMAL` — represent as `number` in JSON examples
-- Dates use ISO 8601 format (`YYYY-MM-DD`)
-- Do **not** suggest adding Swagger/OpenAPI libraries — documentation is Markdown only
-
-## Example
-
-For `ExpenseHandler.java` `createExpense` mapped to `POST /api/expenses`:
-
-```
-## POST /api/expenses
-
-**Description:** Creates a new expense entry for the authenticated user.
-
-**Auth required:** Yes
-
-### Request Body
-\`\`\`json
-{
-  "amount": 42.50,
-  "category": "Food",
-  "description": "Lunch",
-  "date": "2026-03-10"
-}
-\`\`\`
-
-### Response
-
-**Success `201`**
-\`\`\`json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "...",
-  "amount": 42.50,
-  "category": "Food",
-  "description": "Lunch",
-  "date": "2026-03-10"
-}
-\`\`\`
-
-**Error Responses**
-| Status | Body | Condition |
-|--------|------|-----------|
-| 401    | `{ "error": "Unauthorized" }` | Missing or invalid JWT |
-| 400    | `{ "error": "Invalid request" }` | Missing required fields |
-```
-
-```
 
 
 3. **Test the skill** in Agent mode: (Use /api-docs-generator slash command)
 
-```
+```mardown
 
 Generate API documentation for ExpenseHandler.java. Save it as docs/expense-api.md
 
@@ -470,7 +466,7 @@ Generate API documentation for ExpenseHandler.java. Save it as docs/expense-api.
 
 5. **Try it on another handler**:
 
-```
+```mardown
 
 Generate API documentation for AuthHandler.java. Save it as docs/auth-api.md
 
@@ -483,5 +479,3 @@ Generate API documentation for AuthHandler.java. Save it as docs/auth-api.md
 - They produce consistent output regardless of which handler is targeted
 - Any team member can generate up-to-date API docs in seconds
 
-
-```
